@@ -9,11 +9,19 @@
 
 启动：
     streamlit run streamlit_app.py
+
+兼容性：
+    本机有两套环境——Python 3.11（streamlit 1.36，PATH 里 `streamlit` 命令默认指向它）
+    与 Python 3.12（streamlit 1.66）。二者 API 差异较大（segmented_control、
+    metric(border=)、width="stretch" 等均为新版才有）。文件顶部的「版本兼容层」
+    统一做能力检测，使同一份代码在两个版本下都能运行：新版保留新特性，旧版自动降级。
 """
 from __future__ import annotations
 
 import json
+import re
 import sys
+from inspect import signature
 from pathlib import Path
 
 import numpy as np
@@ -26,6 +34,83 @@ BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE / "scripts"))
 
 import analysis_lib as A  # noqa: E402  （必须放在 sys.path 之后）
+
+# ============================================================== 版本兼容层
+# 下面的包装函数屏蔽 streamlit 1.36 / 1.66 的 API 差异，业务代码一律调用包装函数，
+# 不再直接使用 st.dataframe / st.plotly_chart / st.image / st.metric 的新版参数。
+
+def _st_ver() -> tuple:
+    m = re.match(r"(\d+)\.(\d+)", st.__version__ or "")
+    return (int(m.group(1)), int(m.group(2))) if m else (0, 0)
+
+
+def _has_param(fn, name: str) -> bool:
+    try:
+        return name in signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
+
+
+ST_VER = _st_ver()
+HAS_SEG = hasattr(st, "segmented_control")             # 1.40+
+HAS_METRIC_BORDER = _has_param(st.metric, "border")    # 1.44+
+HAS_CONTAINER_BORDER = _has_param(st.container, "border")
+HAS_STR_WIDTH = ST_VER >= (1, 50)                      # width="stretch" / height="content"
+
+
+def _wide() -> dict:
+    """铺满容器宽度：新版 width="stretch"，旧版 use_container_width=True。"""
+    return {"width": "stretch"} if HAS_STR_WIDTH else {"use_container_width": True}
+
+
+def chart(fig, **kw):
+    """plotly 图。旧版 plotly_chart 没有 width 参数，只能用 use_container_width。"""
+    if HAS_STR_WIDTH:
+        st.plotly_chart(fig, width="stretch", theme=None, **kw)
+    else:
+        st.plotly_chart(fig, use_container_width=True, theme=None, **kw)
+
+
+def show_image(src, caption=None):
+    """图片：旧版用 use_column_width=True（不是 use_container_width）。"""
+    if HAS_STR_WIDTH:
+        st.image(src, caption=caption, width="stretch")
+    else:
+        st.image(src, caption=caption, use_column_width=True)
+
+
+def seg(label, options, default=0, **kw):
+    """分段控件：新版 segmented_control，旧版降级为横向 radio。"""
+    if HAS_SEG:
+        return st.segmented_control(label, options, default=options[default], **kw)
+    return st.radio(label, options, index=default, horizontal=True, **kw)
+
+
+def metric(scope, label, value, delta=None, delta_color="normal",
+           help=None, border=True):
+    """指标卡：新版直接 border=True；旧版用带边框容器模拟同样的卡片外观。"""
+    kw = {}
+    if help is not None:
+        kw["help"] = help
+    if delta is not None:
+        kw["delta"] = delta
+        kw["delta_color"] = delta_color
+    if not border:
+        scope.metric(label, value, **kw)
+    elif HAS_METRIC_BORDER:
+        scope.metric(label, value, border=True, **kw)
+    else:
+        box = scope.container(border=True) if HAS_CONTAINER_BORDER else scope.container()
+        box.metric(label, value, **kw)
+
+
+def dl_button(scope, label, data, file_name, mime):
+    """下载按钮：旧版用 use_container_width=True。"""
+    if HAS_STR_WIDTH:
+        scope.download_button(label, data, file_name, mime, width="stretch")
+    else:
+        scope.download_button(label, data, file_name, mime, use_container_width=True)
+
 
 # ------------------------------------------------------------------ 常量
 C_MAIN = "#1f4e79"      # 主色·深蓝
@@ -261,10 +346,15 @@ def table(df, fmt="{:,.2f}", height=None, index=True):
         # 仅对"确实含空值"的列转字符串：既能显示破折号，又不牺牲其余数值列的右对齐
         if out[c].isna().any():
             out[c] = out[c].map(lambda v, f=fmt: "—" if pd.isna(v) else f.format(v))
-    extra = {} if height is None else {"height": height}
+    extra = {}
+    if height is not None:
+        # 旧版（<1.50）只接受整数像素高度，"content" 之类的字符串会被当成 int 解析而报错，
+        # 此时直接省略 height——表格按行数自适应，效果与 "content" 一致。
+        if isinstance(height, int) or HAS_STR_WIDTH:
+            extra["height"] = height
     st.dataframe(out.style.format({c: fmt for c in out.select_dtypes("number").columns},
                                   na_rep="—"),
-                 width="stretch", hide_index=not index, **extra)
+                 hide_index=not index, **_wide(), **extra)
 
 
 # ------------------------------------------------------------------ 侧边栏
@@ -355,7 +445,7 @@ if nav.startswith("①"):
                                  fill="tozeroy", fillcolor="rgba(31,78,121,.08)"))
         style(fig, height=330, showlegend=False).update_layout(
             xaxis=dict(tickformat="%Y-%m"))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
 
     with right:
         sec("六维评分")
@@ -369,7 +459,7 @@ if nav.startswith("①"):
                                        gridcolor="#e4e9f0"),
                        angularaxis=dict(gridcolor="#e4e9f0", tickfont=dict(size=11))),
             margin=dict(l=46, r=46, t=30, b=24))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
 
     sec("三条主线")
     a, b, cc = st.columns(3, gap="medium")
@@ -399,8 +489,8 @@ if nav.startswith("①"):
 # ================================================================== ② 行情与估值
 elif nav.startswith("②"):
     st.title("行情与估值")
-    span = st.segmented_control("区间", ["近 1 年", "近 3 年", "近 5 年", "全部"],
-                                default="近 3 年", key="span") or "近 3 年"
+    span = seg("区间", ["近 1 年", "近 3 年", "近 5 年", "全部"],
+               default=2, key="span") or "近 3 年"
     days = {"近 1 年": 365, "近 3 年": 365 * 3, "近 5 年": 365 * 5}.get(span)
     v = val if days is None else val[val["日期"] >= val["日期"].max() - pd.Timedelta(days=days)]
 
@@ -422,7 +512,7 @@ elif nav.startswith("②"):
         fig.update_yaxes(type="log", row=2, col=1, dtick=1, tickformat=".0f",
                          range=[np.log10(max(pe.min() * 0.85, 1)),
                                 np.log10(pe.max() * 1.15)])
-    st.plotly_chart(fig, width="stretch", theme=None)
+    chart(fig)
     st.caption("上图为前复权收盘价（元）；下图为 PE(TTM)，纵轴对数坐标，"
                "三条灰色点线依次为该区间 PE 的 25%、50%、75% 分位。")
 
@@ -442,7 +532,7 @@ elif nav.startswith("②"):
         style(fig, height=230, showlegend=False).update_layout(
             xaxis=dict(range=[0, 100], title="分位（%）"),
             yaxis=dict(autorange="reversed", title="", automargin=True))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         st.caption("PB / PS 分位 = 当前值在 2016 年以来全部交易日中的位置；"
                    "PE 分位自 2017 年起（2016 年 TTM 利润不可得）。")
     with right:
@@ -470,7 +560,7 @@ elif nav.startswith("②"):
                   annotation_text=f"历史中位 PB {val['PB'].median():.2f}",
                   annotation_position="bottom right", annotation_font_size=10)
     style(fig, height=380).update_layout(xaxis=dict(title="ROE（%）"))
-    st.plotly_chart(fig, width="stretch", theme=None)
+    chart(fig)
     st.caption(f"2026Q3 为前三季度累计 ROE {q3['ROE%']:.2f}% 按 4/3 简单年化（≈{roe_ann:.1f}%），"
                "仅供同尺度比较；该点显著高于 2017 年以来的 PB—ROE 经验区间。")
 
@@ -504,13 +594,13 @@ elif nav.startswith("③"):
         fig.update_yaxes(showgrid=False, secondary_y=True)
         # 类别轴默认按宽度抽稀，这里强制每年都标
         fig.update_xaxes(tickmode="array", tickvals=yrs, ticktext=yrs, tickangle=0)
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         c1, c2 = st.columns(2)
         # 2016 → 2025 是 9 个年度间隔，指数必须是 1/9；写成 0.1（十年）会低估 0.9pct
         cagr10 = (rev[9] / rev[0]) ** (1 / 9) - 1
-        c1.metric("2016—2025 营收 CAGR", f"{cagr10 * 100:.1f}%", border=True,
-                  help="9 个年度间隔的几何平均增速")
-        c2.metric("2026 前三季营收同比", f'{q3["营收增长率%"]:+.1f}%', border=True)
+        metric(c1, "2016—2025 营收 CAGR", f"{cagr10 * 100:.1f}%",
+               help="9 个年度间隔的几何平均增速")
+        metric(c2, "2026 前三季营收同比", f'{q3["营收增长率%"]:+.1f}%')
         st.caption(f"营收从 2016 年 {rev[0]:.2f} 亿爬到 2025 年 {rev[9]:.2f} 亿，"
                    f"9 年 CAGR 仅 {cagr10 * 100:.1f}%，且 2020、2024 两年为负增长；"
                    "真正的跳变发生在 2026 年前三季度（+49.6%），由光通信 AI 算力订单驱动。")
@@ -523,7 +613,7 @@ elif nav.startswith("③"):
             fig.add_trace(go.Scatter(x=yrs, y=y, name=name, mode="lines+markers",
                                      line=dict(color=color, width=2)))
         style(fig, height=380)
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         st.caption("2026 年前三季度毛利率跳升至 28.72%，净利率 13.68%，"
                    "而期间费用率仅 13.32% —— 盈利改善来自毛利端而非费用压缩。")
 
@@ -540,21 +630,21 @@ elif nav.startswith("③"):
                       secondary_y=True)
         style(fig, height=360)
         fig.update_yaxes(showgrid=False, secondary_y=True, tickformat=".1f")
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         c1, c2, c3 = st.columns(3)
         # 有息负债不写死：口径 = 短期借款 + 长期借款 + 应付债券，与上图折线同源
         q3d = p[p["报告期"] == "2026三季报"].iloc[0]
         debt_now = round(q3d[["短期借款", "长期借款", "应付债券"]].fillna(0).sum() / 1e8, 2)
         debt_25 = round(float(int_debt.iloc[-1]), 2)
         # 差额按"两个已四舍五入的数相减"，与报告正文的 +10.23 亿元逐字一致
-        c1.metric("流动比率（2026Q3）", f'{q3["流动比率"]:.2f}', border=True,
-                  help="流动资产 / 流动负债")
-        c2.metric("速动比率（2026Q3）", f'{q3["速动比率"]:.2f}', border=True,
-                  help="剔除存货后的短期偿债能力")
-        c3.metric("有息负债（2026Q3）", f"{debt_now:.2f} 亿元",
-                  f"较 2025 年末 {debt_now - debt_25:+.2f} 亿元",
-                  delta_color="inverse", border=True,
-                  help="短期借款 + 长期借款 + 应付债券")
+        metric(c1, "流动比率（2026Q3）", f'{q3["流动比率"]:.2f}',
+               help="流动资产 / 流动负债")
+        metric(c2, "速动比率（2026Q3）", f'{q3["速动比率"]:.2f}',
+               help="剔除存货后的短期偿债能力")
+        metric(c3, "有息负债（2026Q3）", f"{debt_now:.2f} 亿元",
+               f"较 2025 年末 {debt_now - debt_25:+.2f} 亿元",
+               delta_color="inverse",
+               help="短期借款 + 长期借款 + 应付债券")
 
     with tabs[3]:
         fig = go.Figure()
@@ -565,7 +655,7 @@ elif nav.startswith("③"):
             fig.add_trace(go.Scatter(x=yrs, y=y, name=name, mode="lines+markers",
                                      line=dict(color=color, width=2)))
         style(fig, height=380)
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         st.caption("总资产周转率十年间从 0.69 降至 0.40 附近：收入增长靠加杠杆与加资产推动，"
                    "而非资产效率提升。")
 
@@ -579,12 +669,12 @@ elif nav.startswith("③"):
                                  ("筹资现金流净额", "筹资活动", C_ACC)]:
             fig.add_trace(go.Bar(x=s_ann.index.astype(str), y=s_ann[col], name=name, marker_color=color))
         style(fig, height=380).update_layout(barmode="group")
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         c1, c2 = st.columns(2)
-        c1.metric("2026Q3 经营现金流", f'{q3["经营现金流净额(亿元)"]:.2f} 亿元', border=True)
+        metric(c1, "2026Q3 经营现金流", f'{q3["经营现金流净额(亿元)"]:.2f} 亿元')
         # 说明文字不能塞进 metric 的 delta 参数——Streamlit 会把它当增减量并加箭头、染色
-        c2.metric("2026Q3 净现比", f'{q3["净现比"]:.2f}', border=True,
-                  help="经营现金流净额 / 归母净利润")
+        metric(c2, "2026Q3 净现比", f'{q3["净现比"]:.2f}',
+               help="经营现金流净额 / 归母净利润")
         st.caption("净现比 ＜1 说明利润尚未足额转化为现金。上图为年度值；2026Q3 为 1—9 月累计，"
                    "与全年数值不可直接比较。")
 
@@ -598,7 +688,7 @@ elif nav.startswith("③"):
         fig.add_trace(go.Scatter(x=mp["期间"], y=mp["投资收益"], name="投资收益",
                                  mode="lines+markers", line=dict(color=C_ACC, width=1.6, dash="dot")))
         style(fig, height=400).update_layout(barmode="group")
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         st.caption("单位：亿元。2026Q3 为前三季度累计（非全年），柱高不可与年度值直接比较。"
                    "2016 年及以前报表未单列研发费用，期间费用只含销售/管理/财务三项，"
                    "故 2016 年主业经营利润偏高，与 2017 年起不可比。")
@@ -624,7 +714,7 @@ elif nav.startswith("③"):
                                  mode="lines+markers", line=dict(color=C_WARN, width=2.6)))
         style(fig, height=400).update_layout(
             xaxis=dict(tickmode="array", tickvals=list(x), ticktext=[str(y) for y in range(2016, 2026)]))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
         troe = ra.loc[2016:2025, ["ROE%", "杜邦校验ROE%"]].copy()
         troe["偏差(pct)"] = (troe["杜邦校验ROE%"] - troe["ROE%"]).abs()
         st.caption(f"杜邦恒等式校验：10 个年度最大偏差 {troe['偏差(pct)'].max():.2f} pct"
@@ -660,7 +750,7 @@ elif nav.startswith("④"):
             xaxis=dict(title="累计涨幅（%）（中际旭创已截断）",
                        range=[lo_ - 8 if lo_ < 0 else 0, CAP * 1.16]),
             yaxis=dict(autorange="reversed"))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
     with right:
         sec("2025 年报关键指标")
         tp = A.t_peer(d)
@@ -698,7 +788,7 @@ elif nav.startswith("④"):
                                    showline=False, gridcolor="#e4e9f0"),
                    angularaxis=dict(gridcolor="#e4e9f0", tickfont=dict(size=11))),
         margin=dict(l=58, r=58, t=34, b=34))
-    st.plotly_chart(fig, width="stretch", theme=None)
+    chart(fig)
     st.caption("各轴统一为 0—100 分制（刻度已隐去，只比较形状）。"
                "为免极值压扁坐标，雷达图仅取 5 家（不含中际旭创 43.84% 的 ROE 与通鼎互联）；"
                "中际旭创见上表。同业接口不含 600105，永鼎数据按同口径补入。")
@@ -727,7 +817,7 @@ elif nav.startswith("⑤"):
                                  mode="lines+markers", line=dict(color=C_ACC, width=2)))
         fig.add_hline(y=0, line=dict(color="#333", width=0.9))
         style(fig, height=340).update_layout(barmode="group")
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
     with right:
         sec("货币与景气：M2 与 PMI")
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -740,7 +830,7 @@ elif nav.startswith("⑤"):
         fig.add_hline(y=50, line=dict(color=C_GRAY, dash="dot", width=1), secondary_y=True)
         style(fig, height=340)
         fig.update_yaxes(showgrid=False, secondary_y=True, tickformat=".1f")
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
 
     sec("宏观年度指标")
     mm = m.reset_index()
@@ -755,7 +845,7 @@ elif nav.startswith("⑤"):
     for col in seg.columns:
         fig.add_trace(go.Bar(x=seg.index, y=seg[col], name=col))
     style(fig, height=360).update_layout(barmode="stack")
-    st.plotly_chart(fig, width="stretch", theme=None)
+    chart(fig)
     st.caption("2026H1：光通信 12.35 亿元（占 58.52% 毛利）、汽车线束 8.77 亿元、"
                "电力工程 6.56 亿元、超导及铜导体 4.84 亿元。")
 
@@ -821,7 +911,7 @@ elif nav.startswith("⑥"):
                                    textfont=dict(size=13), colorbar=dict(title="亿元")))
         style(fig, height=340, showlegend=False).update_layout(
             xaxis=dict(title="永续增长率 g"))
-        st.plotly_chart(fig, width="stretch", theme=None)
+        chart(fig)
     with right:
         sec("反解：多高的增速才能撑起当前市值？")
         target_eq = last["总市值(亿元)"]
@@ -873,7 +963,7 @@ elif nav.startswith("⑦"):
                 p = BASE / "figures" / fn
                 with cols[i % 2]:
                     if p.exists():
-                        st.image(str(p), caption=cap, width="stretch")
+                        show_image(str(p), caption=cap)
                     else:
                         st.warning(f"缺少图片：{fn}")
 
@@ -955,15 +1045,14 @@ else:
     docx = next(BASE.glob("12607320270457_*.docx"), None)
     pdf = next(BASE.glob("12607320270457_*.pdf"), None)
     if docx:
-        c1.download_button("投资分析报告（Word）", docx.read_bytes(), docx.name,
-                           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                           width="stretch")
+        dl_button(c1, "投资分析报告（Word）", docx.read_bytes(), docx.name,
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     if pdf:
-        c2.download_button("投资分析报告（PDF）", pdf.read_bytes(), pdf.name,
-                           "application/pdf", width="stretch")
+        dl_button(c2, "投资分析报告（PDF）", pdf.read_bytes(), pdf.name,
+                  "application/pdf")
     nbp = BASE / "永鼎股份投资分析.ipynb"
     if nbp.exists():
-        c3.download_button("分析 Notebook", nbp.read_bytes(), nbp.name,
-                           "application/x-ipynb+json", width="stretch")
+        dl_button(c3, "分析 Notebook", nbp.read_bytes(), nbp.name,
+                  "application/x-ipynb+json")
 
     st.caption("本看板为《证券投资学》课程作业，所有结论仅供教学讨论，不构成任何投资建议。")
