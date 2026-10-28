@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="永鼎股份（600105.SH）投资价值分析 · 《证券投资学》实践课 · 滕宇豪">
+<meta name="description" content="永鼎股份（600105.SH）投资价值分析 · 《证券投资学》实践课 · 在线交互看板 / 34 页报告 / 21 图">
 <title>永鼎股份（600105.SH）投资价值分析 · 项目门户</title>
 <style>
 /* ==========================================================================
@@ -127,11 +127,25 @@ header.hero{
 .verdict .txt{font-size:14px;color:#e2eaf8}
 .verdict .txt b{color:#ffd0a8}
 
-.byline{display:flex;flex-wrap:wrap;gap:7px 10px;margin-top:20px}
-.byline span{
-  font-size:12.5px;color:#a9bcdc;border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.05);border-radius:999px;padding:3px 12px;white-space:nowrap;
+/* Hero 行动按钮：主按钮指向已部署的在线看板 */
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:11px;margin-top:22px}
+.cta{
+  display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;
+  color:#fff;background:linear-gradient(135deg,#2f6bd8,#4389e4);
+  border-radius:11px;padding:11px 18px;letter-spacing:.3px;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(47,107,216,.34);
+  transition:transform .16s ease,box-shadow .16s ease;
 }
+.cta:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(47,107,216,.46);
+  color:#fff;text-decoration:none}
+.cta.ghost{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);
+  box-shadow:none;color:#dce7fa;font-weight:600;
+}
+.cta.ghost:hover{background:rgba(255,255,255,.15);box-shadow:none;color:#fff}
+.cta .arw{transition:transform .16s ease}
+.cta:hover .arw{transform:translateX(3px)}
+.cta-note{font-size:12px;color:#9fb2d4;line-height:1.6}
 
 /* 估值对照卡（Hero 右侧） */
 .vcard{
@@ -394,12 +408,11 @@ html.js .rv.in{opacity:1;transform:none;transition:opacity .55s cubic-bezier(.2,
           <div class="txt">基本面改善是真的，价格已提前兑现——<b>好公司、贵价格</b>。</div>
         </div>
 
-        <div class="byline">
-          <span>姓名：滕宇豪</span>
-          <span>学号：12607320270457</span>
-          <span>班级：25 级大数据与财务管理 03 班</span>
-          <span>指导老师：李淑会</span>
-          <span>2026 年 11 月</span>
+        <div class="cta-row">
+          <a class="cta" href="https://600105shinvestmentanalysis-tcmbdhybgr6rofknptaiam.streamlit.app/"
+             target="_blank" rel="noopener">🚀 打开在线交互看板<span class="arw">→</span></a>
+          <a class="cta ghost" href="#deliver">📦 交付物清单</a>
+          <span class="cta-note">在线版为 Streamlit Cloud 部署实例，<br>数据快照截至 2026-10-27</span>
         </div>
       </div>
 
@@ -689,6 +702,15 @@ html.js .rv.in{opacity:1;transform:none;transition:opacity .55s cubic-bezier(.2,
     </div>
     <div class="deliver rv">
       <div class="ditem">
+        <div class="ico">🚀</div>
+        <div>
+          <div class="tt"><a href="https://600105shinvestmentanalysis-tcmbdhybgr6rofknptaiam.streamlit.app/"
+             target="_blank" rel="noopener">在线交互看板（Streamlit Cloud）</a></div>
+          <div class="dd">8 页已部署上线，无需本地环境，打开即用：概览 / 行情估值 / 财务五维 / 同业 / 宏观 / DCF / 图表墙 / 数据说明</div>
+          <div class="meta">https://600105shinvestmentanalysis-tcmbdhybgr6rofknptaiam.streamlit.app/</div>
+        </div>
+      </div>
+      <div class="ditem">
         <div class="ico">📘</div>
         <div>
           <div class="tt"><a href="12607320270457_滕宇豪_25级大数据与财务管理03班_江苏永鼎股份（600105.SH）投资分析报告.docx">投资分析报告（Word）</a></div>
@@ -707,8 +729,8 @@ html.js .rv.in{opacity:1;transform:none;transition:opacity .55s cubic-bezier(.2,
       <div class="ditem">
         <div class="ico">📊</div>
         <div>
-          <div class="tt"><a href="streamlit_app.py">交互看板（Streamlit）</a></div>
-          <div class="dd">8 页：概览 / 行情估值 / 财务五维 / 同业 / 宏观 / DCF / 图表墙 / 数据说明</div>
+          <div class="tt"><a href="streamlit_app.py">交互看板（本地源码）</a></div>
+          <div class="dd">8 页：概览 / 行情估值 / 财务五维 / 同业 / 宏观 / DCF / 图表墙 / 数据说明（已适配 streamlit 1.36—1.66）</div>
           <div class="meta">streamlit run streamlit_app.py</div>
         </div>
       </div>
@@ -798,9 +820,12 @@ python 05b_run_notebook.py
 <span class="c"># 5) 生成 Word 报告（PDF 用 Word 另存为，或 COM 导出）</span>
 python report_content.py
 
-<span class="c"># 6) 启动交互看板</span>
+<span class="c"># 6) 启动交互看板（本地）→ http://localhost:8501</span>
 <span class="k">cd</span> ..
-streamlit run streamlit_app.py</pre>
+streamlit run streamlit_app.py
+
+<span class="c"># 也可直接使用已部署的在线版，无需本地环境：</span>
+<span class="c"># https://600105shinvestmentanalysis-tcmbdhybgr6rofknptaiam.streamlit.app/</span></pre>
     </div>
     <div class="tb-tip rv">
       ⚠️ <b>版本锁定</b>：numpy 必须 1.26.4、pyarrow 必须 17.0.0——pyarrow ≥20 按 NumPy 2.x ABI 编译，
@@ -815,8 +840,10 @@ streamlit run streamlit_app.py</pre>
   <div class="wrap fcols">
     <div>
       <h4>永鼎股份（600105.SH）投资价值分析</h4>
-      《证券投资学》实践课 · 25 级大数据与财务管理 03 班<br>
-      滕宇豪 / 12607320270457 · 指导老师：李淑会 · 2026 年 11 月
+      《证券投资学》课程实践 · 个股投资分析报告<br>
+      在线交互看板：<a href="https://600105shinvestmentanalysis-tcmbdhybgr6rofknptaiam.streamlit.app/"
+        target="_blank" rel="noopener">600105shinvestmentanalysis…streamlit.app</a><br>
+      数据截至 2026-10-27 · 2026 年 11 月
     </div>
     <div>
       <h4>数据区间</h4>
