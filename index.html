@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="永鼎股份（600105.SH）投资价值分析 · 《证券投资学》实践课 · 滕宇豪">
+<title>永鼎股份（600105.SH）投资价值分析 · 项目门户</title>
+<style>
+/* ==========================================================================
+   0. 设计令牌（浅色默认 / 深色由 [data-theme="dark"] 覆盖）
+   ========================================================================== */
+:root{
+  --bg:#f4f6fa;        --bg-soft:#eaeff6;      --card:#ffffff;
+  --ink:#15203a;       --ink-2:#3b4861;        --sub:#6c788c;
+  --line:#e2e8f0;      --line-2:#eef2f7;
+  --accent:#1f4e9c;    --accent-soft:#e9f0fb;
+  --up:#c0392b;        /* A股：涨 / 估值偏高 */
+  --down:#1e8e3e;      /* A股：跌 / 改善为负向时不使用 */
+  --warn:#b26a00;
+  --hero-a:#0c1730;    --hero-b:#1b2c50;       --hero-c:#2a4070;
+  --code-bg:#0f1728;   --code-ink:#dbe6f7;     --code-sub:#7f8ea8;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 8px 22px rgba(16,24,40,.06);
+  --shadow-l:0 4px 10px rgba(16,24,40,.06), 0 18px 44px rgba(16,24,40,.12);
+  --r:14px;  --r-s:10px;
+  --f-zh:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+  --f-mono:"JetBrains Mono","Cascadia Code","Consolas","Courier New",monospace;
+}
+[data-theme="dark"]{
+  --bg:#0c1119;        --bg-soft:#111823;      --card:#141c28;
+  --ink:#e6edf8;       --ink-2:#c2cfe2;        --sub:#8d99ad;
+  --line:#222d3d;      --line-2:#1a2331;
+  --accent:#79a9ff;    --accent-soft:#152238;
+  --up:#ff6f61;        --down:#4ecb73;         --warn:#e0a94a;
+  --hero-a:#070c16;    --hero-b:#0f1a30;       --hero-c:#16243f;
+  --code-bg:#0a101c;   --code-ink:#d6e2f2;     --code-sub:#77869c;
+  --shadow:0 1px 2px rgba(0,0,0,.30), 0 8px 22px rgba(0,0,0,.34);
+  --shadow-l:0 4px 10px rgba(0,0,0,.34), 0 18px 44px rgba(0,0,0,.46);
+}
+
+/* ------------------------------------------------------------------ 基础 */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--f-zh);color:var(--ink);background:var(--bg);
+  line-height:1.75;-webkit-font-smoothing:antialiased;
+  transition:background .25s ease,color .25s ease;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%}
+code,kbd{font-family:var(--f-mono);font-size:.92em}
+::selection{background:var(--accent);color:#fff}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ------------------------------------------------- 顶部滚动进度 + 导航 */
+#prog{
+  position:fixed;top:0;left:0;height:3px;width:0;z-index:80;
+  background:linear-gradient(90deg,var(--accent),var(--up));
+  transition:width .08s linear;
+}
+nav{
+  position:sticky;top:0;z-index:60;
+  background:color-mix(in srgb,var(--card) 88%,transparent);
+  backdrop-filter:saturate(160%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.brand{font-weight:700;font-size:15px;letter-spacing:.3px;white-space:nowrap;color:var(--ink)}
+.brand .code{color:var(--up)}
+.links{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.links::-webkit-scrollbar{display:none}
+.links a{
+  font-size:13.5px;color:var(--sub);padding:6px 11px;border-radius:999px;
+  white-space:nowrap;transition:.18s;
+}
+.links a:hover{color:var(--ink);background:var(--bg-soft);text-decoration:none}
+.links a.on{color:#fff;background:var(--accent);text-decoration:none}
+.tbtn{
+  margin-left:10px;flex:0 0 auto;width:36px;height:36px;border-radius:10px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);
+  cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center;
+}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ------------------------------------------------------------------ Hero */
+header.hero{
+  position:relative;overflow:hidden;color:#fff;
+  background:linear-gradient(135deg,var(--hero-a) 0%,var(--hero-b) 52%,var(--hero-c) 100%);
+  padding:60px 0 54px;
+}
+.hero::before{ /* 网格纹理 */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(120% 90% at 20% 0%,#000 10%,transparent 78%);
+          mask-image:radial-gradient(120% 90% at 20% 0%,#000 10%,transparent 78%);
+}
+.hero::after{ /* 光晕 */
+  content:"";position:absolute;right:-120px;top:-140px;width:460px;height:460px;
+  border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(90,140,230,.30),transparent 62%);
+}
+.hero .wrap{position:relative;z-index:2}
+.hero .tag{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.6px;
+  color:#c6d5f0;border:1px solid rgba(255,255,255,.24);border-radius:999px;
+  padding:5px 14px;margin-bottom:18px;background:rgba(255,255,255,.05);
+}
+.hero h1{font-size:31px;line-height:1.34;font-weight:700;letter-spacing:.2px}
+.hero h1 .ticker{color:#ffd0a8;font-weight:600}
+.hero p.lead{font-size:15px;color:#c3d2ee;max-width:660px;margin-top:12px}
+
+.hero-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:30px;align-items:start;margin-top:8px}
+
+.verdict{
+  display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--r);padding:13px 18px;backdrop-filter:blur(4px);
+}
+.verdict .grade{
+  font-size:13px;font-weight:700;color:#fff;background:var(--up);
+  border-radius:9px;padding:6px 14px;white-space:nowrap;letter-spacing:.3px;
+}
+.verdict .txt{font-size:14px;color:#e2eaf8}
+.verdict .txt b{color:#ffd0a8}
+
+.byline{display:flex;flex-wrap:wrap;gap:7px 10px;margin-top:20px}
+.byline span{
+  font-size:12.5px;color:#a9bcdc;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);border-radius:999px;padding:3px 12px;white-space:nowrap;
+}
+
+/* 估值对照卡（Hero 右侧） */
+.vcard{
+  background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.18);
+  border-radius:var(--r);padding:18px 20px;backdrop-filter:blur(6px);
+}
+.vcard h3{font-size:13px;font-weight:600;color:#b9c9e6;letter-spacing:.5px;margin-bottom:14px}
+.vrow{margin-bottom:13px}
+.vrow .top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:#c8d6ee}
+.vrow .top b{font-size:14px;color:#fff;font-weight:700}
+.vbar{height:7px;border-radius:999px;background:rgba(255,255,255,.12);margin-top:5px;overflow:hidden}
+.vbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7fa5e8,#4a76c8)}
+.vrow.px .vbar i{background:linear-gradient(90deg,#e08a7a,var(--up))}
+.vcard .foot{font-size:11.5px;color:#9db0d0;border-top:1px solid rgba(255,255,255,.14);
+  padding-top:11px;margin-top:4px;line-height:1.65}
+
+/* ------------------------------------------------------------- 章节骨架 */
+main{padding-bottom:10px}
+section{padding:44px 0 6px;scroll-margin-top:70px}
+.sec-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.sec-num{
+  flex:0 0 auto;width:34px;height:34px;border-radius:11px;
+  display:grid;place-items:center;font-size:15px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--accent),#3f6fc4);
+  box-shadow:0 4px 12px rgba(31,78,156,.26);
+}
+h2.sec{font-size:22px;font-weight:700;line-height:1.45;letter-spacing:.2px}
+.sec-sub{color:var(--sub);font-size:13.8px;margin-top:4px}
+.sec-head .go{margin-left:auto;font-size:12.5px;white-space:nowrap;padding-top:9px}
+
+.split{display:grid;grid-template-columns:1.08fr 1fr;gap:28px;align-items:start}
+.split.rev > figure{order:-1}
+
+/* -------------------------------------------------------------- 正文块 */
+.prose p{margin-bottom:13px;font-size:14.6px;color:var(--ink-2)}
+.prose b,.prose strong{color:var(--ink);font-weight:700}
+.prose .up{color:var(--up);font-weight:700}
+.prose .down{color:var(--down);font-weight:700}
+.callout{
+  border-radius:0 var(--r-s) var(--r-s) 0;border-left:3px solid var(--accent);
+  background:var(--accent-soft);padding:13px 17px;margin:16px 0;font-size:14px;color:var(--ink-2);
+}
+.callout.warn{border-left-color:var(--up);background:color-mix(in srgb,var(--up) 8%,var(--card))}
+.callout.good{border-left-color:var(--down);background:color-mix(in srgb,var(--down) 8%,var(--card))}
+.callout b{color:var(--ink)}
+.callout .ct{font-weight:700;display:block;margin-bottom:2px;font-size:13px;letter-spacing:.3px}
+
+/* -------------------------------------------------------------- KPI 卡 */
+section.kpi{margin-top:-34px;position:relative;z-index:3;padding-top:0}
+.grid-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kcard{
+  position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:15px 17px 14px;box-shadow:var(--shadow);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.kcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-l)}
+.kcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.kcard.is-up::before{background:var(--up)}
+.kcard.is-warn::before{background:var(--warn)}
+.kcard .lab{font-size:12px;color:var(--sub);letter-spacing:.2px}
+.kcard .val{font-size:25px;font-weight:700;letter-spacing:.3px;line-height:1.25;margin-top:2px}
+.kcard .val small{font-size:13px;font-weight:600;color:var(--sub);margin-left:2px}
+.kcard .note{font-size:11.5px;color:var(--sub);margin-top:3px}
+.kcard.up .val{color:var(--up)}
+.kcard.down .val{color:var(--down)}
+.pct{height:5px;border-radius:999px;background:var(--line-2);margin-top:7px;overflow:hidden}
+.pct i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.pct.hi i{background:linear-gradient(90deg,#e08a7a,var(--up))}
+
+/* ---------------------------------------------------------------- 表格 */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13.6px}
+th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line-2);white-space:nowrap}
+thead th{
+  position:sticky;top:0;background:var(--bg-soft);color:var(--ink-2);font-weight:700;
+  font-size:12.8px;letter-spacing:.3px;z-index:1;
+}
+th:first-child,td:first-child{text-align:left}
+tbody tr:hover{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{font-weight:600;color:var(--ink)}
+tr.me td{background:color-mix(in srgb,var(--accent) 7%,transparent);font-weight:700}
+tr.me:hover td{background:color-mix(in srgb,var(--accent) 11%,transparent)}
+td.up,.up{color:var(--up)} td.down,.down{color:var(--down)}
+td.num,th.num{font-variant-numeric:tabular-nums}
+.tb-tip{font-size:12.2px;color:var(--sub);margin-top:9px;line-height:1.7}
+.tb-tip b{color:var(--ink-2)}
+
+/* ------------------------------------------------------------------ 图 */
+figure.fig{margin:0}
+figure.fig .shot{
+  display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:var(--r-s);
+  background:var(--card);cursor:zoom-in;transition:transform .22s ease,box-shadow .22s ease;
+}
+figure.fig .shot:hover{transform:scale(1.014);box-shadow:var(--shadow-l)}
+figure.fig figcaption{font-size:12.4px;color:var(--sub);text-align:center;margin-top:9px;line-height:1.6}
+
+/* -------------------------------------------------------------- 图表墙 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.chip{
+  font-size:12.8px;color:var(--ink-2);border:1px solid var(--line);background:var(--card);
+  border-radius:999px;padding:5px 14px;cursor:pointer;transition:.16s;font-family:inherit;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.gal{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.gal .gitem{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;
+}
+.gal .gitem:hover{transform:translateY(-3px);box-shadow:var(--shadow-l)}
+.gal .gitem img{width:100%;height:170px;object-fit:contain;cursor:zoom-in;border-radius:8px;background:var(--bg-soft)}
+.gal .gitem p{font-size:12.2px;color:var(--sub);margin-top:9px;line-height:1.55;text-align:center}
+.gal .gitem.hide{display:none}
+
+/* -------------------------------------------------------------- 交付物 */
+.deliver{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ditem{
+  display:flex;gap:13px;align-items:flex-start;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;
+  box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;
+}
+.ditem:hover{transform:translateY(-3px);box-shadow:var(--shadow-l)}
+.ditem .ico{
+  flex:0 0 auto;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
+  font-size:19px;background:var(--accent-soft);
+}
+.ditem .tt{font-weight:700;font-size:14.2px;line-height:1.5}
+.ditem .tt a{color:var(--ink)}
+.ditem .tt a:hover{color:var(--accent);text-decoration:none}
+.ditem .dd{font-size:12.4px;color:var(--sub);margin-top:4px;line-height:1.6}
+.ditem .meta{display:inline-block;margin-top:7px;font-size:11px;color:var(--sub);
+  border:1px solid var(--line);border-radius:6px;padding:1px 8px;font-family:var(--f-mono)}
+
+/* ------------------------------------------------------------ 口径卡片 */
+.notes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.note{
+  background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:var(--r-s);padding:13px 16px;font-size:13.2px;color:var(--ink-2);line-height:1.7;
+}
+.note b{color:var(--ink)}
+
+/* -------------------------------------------------------------- 代码块 */
+.term{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--code-bg);box-shadow:var(--shadow)}
+.term .bar{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;
+  background:color-mix(in srgb,var(--code-bg) 88%,#fff 12%);border-bottom:1px solid rgba(255,255,255,.07);
+}
+.term .bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.term .bar .nm{margin-left:6px;font-size:12px;color:#8fa0bb;font-family:var(--f-mono)}
+.term .bar button{
+  margin-left:auto;font-size:11.5px;color:#a8b8d0;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:3px 11px;cursor:pointer;font-family:inherit;
+}
+.term .bar button:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+pre{
+  margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--f-mono);
+  font-size:12.7px;line-height:1.8;color:var(--code-ink);
+}
+pre .c{color:var(--code-sub)}
+pre .k{color:#8fc0ff}
+
+/* -------------------------------------------------------------- 灯箱 */
+#lb{
+  position:fixed;inset:0;z-index:100;display:none;place-items:center;
+  background:rgba(8,12,22,.9);backdrop-filter:blur(6px);padding:34px;
+}
+#lb.on{display:grid}
+#lb img{max-width:min(1180px,94vw);max-height:78vh;border-radius:10px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+#lb .cap{margin-top:14px;color:#dbe4f2;font-size:13.5px;text-align:center;max-width:900px;line-height:1.7}
+#lb .x,#lb .nav{
+  position:absolute;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  border-radius:10px;cursor:pointer;display:grid;place-items:center;font-family:inherit;
+}
+#lb .x{top:20px;right:22px;width:38px;height:38px;font-size:19px}
+#lb .nav{top:50%;transform:translateY(-50%);width:44px;height:60px;font-size:22px}
+#lb .nav.l{left:16px} #lb .nav.r{right:16px}
+#lb .x:hover,#lb .nav:hover{background:rgba(255,255,255,.24)}
+#lb .idx{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:#9fb0ca;font-size:12.5px}
+
+/* -------------------------------------------------------------- 页脚 */
+footer{margin-top:48px;border-top:1px solid var(--line);background:var(--bg-soft);padding:32px 0 28px}
+.fcols{display:grid;grid-template-columns:1.4fr 1fr 1.2fr;gap:26px;font-size:12.6px;color:var(--sub);line-height:1.85}
+.fcols h4{font-size:12.5px;color:var(--ink);font-weight:700;margin-bottom:8px;letter-spacing:.4px}
+.fcols .dis{color:var(--sub)}
+
+/* --------------------------------------------------- 返回顶部 / 动画 */
+#top{
+  position:fixed;right:22px;bottom:26px;z-index:70;width:42px;height:42px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);cursor:pointer;
+  box-shadow:var(--shadow-l);display:grid;place-items:center;font-size:17px;
+  opacity:0;pointer-events:none;transition:.22s;
+}
+#top.on{opacity:1;pointer-events:auto}
+#top:hover{color:var(--accent);border-color:var(--accent)}
+
+html.js .rv{opacity:0;transform:translateY(16px)}
+html.js .rv.in{opacity:1;transform:none;transition:opacity .55s cubic-bezier(.2,.7,.3,1),transform .55s cubic-bezier(.2,.7,.3,1)}
+@media (prefers-reduced-motion:reduce){
+  html.js .rv{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+
+/* -------------------------------------------------------------- 响应式 */
+@media (max-width:960px){
+  .hero-grid{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr}
+  .deliver{grid-template-columns:repeat(2,1fr)}
+  .gal{grid-template-columns:repeat(2,1fr)}
+  .fcols{grid-template-columns:1fr 1fr}
+  .notes{grid-template-columns:1fr}
+}
+@media (max-width:680px){
+  .wrap{padding:0 16px}
+  .grid-kpi{grid-template-columns:repeat(2,1fr)}
+  .deliver,.gal,.fcols,.notes{grid-template-columns:1fr}
+  .brand{font-size:13.5px}
+  .hero h1{font-size:24px}
+  .hero{padding:42px 0 40px}
+  h2.sec{font-size:19px}
+  .sec-head .go{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">永鼎股份 <span class="code">600105.SH</span> · 投资价值分析</div>
+    <div class="links" id="nav">
+      <a href="#kpi">核心指标</a>
+      <a href="#growth">成长性</a>
+      <a href="#quality">盈利质量</a>
+      <a href="#peers">同业</a>
+      <a href="#value">估值</a>
+      <a href="#fivedim">五维</a>
+      <a href="#gallery">图表墙</a>
+      <a href="#deliver">交付物</a>
+      <a href="#repro">复现</a>
+    </div>
+    <button class="tbtn" id="tt" title="切换深色 / 浅色" aria-label="切换主题">🌙</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="tag">《证券投资学》实践课 · 个股投资分析</span>
+        <h1>江苏永鼎股份有限公司<br><span class="ticker">（600105.SH）</span>投资价值分析</h1>
+        <p class="lead">光通信龙头的新一轮景气：AI 算力需求驱动下，2026 年前三季度营收同比 +49.6%、扣非归母 7.40 亿元；
+          但估值已运行到历史高分位，成长的故事与价格之间仍有距离。</p>
+
+        <div class="verdict">
+          <div class="grade">评级：谨慎看待 · Hold</div>
+          <div class="txt">基本面改善是真的，价格已提前兑现——<b>好公司、贵价格</b>。</div>
+        </div>
+
+        <div class="byline">
+          <span>姓名：滕宇豪</span>
+          <span>学号：12607320270457</span>
+          <span>班级：25 级大数据与财务管理 03 班</span>
+          <span>指导老师：李淑会</span>
+          <span>2026 年 11 月</span>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <h3>价格 vs 内在价值（每股，元）</h3>
+        <div class="vrow px">
+          <div class="top"><span>当前股价</span><b>25.30</b></div>
+          <div class="vbar"><i style="width:100%"></i></div>
+        </div>
+        <div class="vrow">
+          <div class="top"><span>DCF 乐观情景</span><b>11.6</b></div>
+          <div class="vbar"><i style="width:45.8%"></i></div>
+        </div>
+        <div class="vrow">
+          <div class="top"><span>DCF 中性情景</span><b>7.5</b></div>
+          <div class="vbar"><i style="width:29.6%"></i></div>
+        </div>
+        <div class="vrow">
+          <div class="top"><span>DCF 悲观情景</span><b>3.8</b></div>
+          <div class="vbar"><i style="width:15.0%"></i></div>
+        </div>
+        <div class="foot">两阶段 DCF（WACC 10%、永续增长 2.5%、净有息负债 20.7 亿元）。
+          三情景每股价值均低于现价，中性情景隐含 <b style="color:#ffd0a8">−70.4%</b> 空间；
+          反解需 2027—2030 年自由现金流连续四年复合增长 <b style="color:#ffd0a8">55.7%</b> 才能支撑当前市值。</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================== 核心指标 ============================== -->
+<section id="kpi" class="kpi">
+  <div class="wrap">
+    <div class="grid-kpi">
+      <div class="kcard rv"><div class="lab">现价</div>
+        <div class="val">25.30<small>元</small></div><div class="note">2026-10-27 收盘</div></div>
+      <div class="kcard rv"><div class="lab">总市值</div>
+        <div class="val">369.88<small>亿</small></div><div class="note">股本 14.62 亿股</div></div>
+      <div class="kcard is-warn rv"><div class="lab">PE（TTM）</div>
+        <div class="val">57.13</div><div class="note">历史分位 60.2%</div>
+        <div class="pct"><i style="width:60.2%"></i></div></div>
+      <div class="kcard is-warn rv"><div class="lab">PB</div>
+        <div class="val">9.55</div><div class="note">历史分位 92.3%</div>
+        <div class="pct hi"><i style="width:92.3%"></i></div></div>
+      <div class="kcard is-warn rv"><div class="lab">PS（TTM）</div>
+        <div class="val">5.22</div><div class="note">历史分位 91.1%</div>
+        <div class="pct hi"><i style="width:91.1%"></i></div></div>
+      <div class="kcard is-up up rv"><div class="lab">2026Q3 营收</div>
+        <div class="val">+49.6%</div><div class="note">54.30 亿元 · 同比</div></div>
+      <div class="kcard is-up up rv"><div class="lab">2026Q3 归母</div>
+        <div class="val">+125.8%</div><div class="note">7.43 亿元 · 同比</div></div>
+      <div class="kcard rv"><div class="lab">扣非占比</div>
+        <div class="val">99.66%</div><div class="note">2026Q3，主业驱动</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 成长性 ============================== -->
+<section id="growth">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">1</div>
+      <div>
+        <h2 class="sec">成长性：真正的主升发生在 2026 年</h2>
+        <div class="sec-sub">2016 年营收 25.79 亿元 → 2025 年 52.87 亿元，9 年 CAGR 8.3%，期间 2020、2024 两年负增长。</div>
+      </div>
+      <a class="go" href="#gallery">查看全部 21 张图 →</a>
+    </div>
+    <div class="split rv">
+      <div class="prose">
+        <p>永鼎的营收体量长期在 28—43 亿元区间震荡，<b>十年 CAGR 仅 8.3%</b>，
+          且 2020、2024 两年出现负增长，本质上是一条低波动、低增速的制造业曲线。</p>
+        <p>真正的跳变发生在 <b>2026 年前三季度</b>：营收 54.30 亿元、同比 <span class="up">+49.6%</span>，
+          归母净利 7.43 亿元、同比 <span class="up">+125.8%</span>，由光通信的 AI 算力订单驱动。
+          这使公司首次具备"业绩兑现成长"的证据，而非停留在主题想象。</p>
+        <div class="callout warn">
+          <span class="ct">关键判断</span>
+          高增长能否在 2027 年延续，取决于光通信订单的能见度——这是本报告估值结论最大的不确定性来源。
+        </div>
+      </div>
+      <figure class="fig">
+        <img class="shot" src="figures/图3-1_营收与归母净利.png" alt="营业收入与归母净利润" loading="lazy">
+        <figcaption>图 5-1　营业收入与归母净利润（2016—2026Q3）</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 盈利质量 ============================== -->
+<section id="quality">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">2</div>
+      <div>
+        <h2 class="sec">盈利质量：从"账面盈利"到"主业盈利"</h2>
+        <div class="sec-sub">"扣非占比"不足以识别权益法投资收益——报告改用"毛利 − 期间费用"定义主业经营利润做穿透。</div>
+      </div>
+    </div>
+    <div class="split rev rv">
+      <div class="prose">
+        <p>2025 年归母净利 2.34 亿元，其中 <b>东昌投资权益法收益 2.74 亿元</b>（房地产处置），
+          投资收益合计 2.87 亿元；按"毛利 − 期间费用"口径，2025 年主业经营利润为 <span class="down">−0.21 亿元</span>，
+          <b>主业实际是亏损的</b>。</p>
+        <p>而 2026 年前三季度呈现根本性变化：扣非归母 7.40 亿元、占归母 <span class="up">99.66%</span>，
+          投资收益仅 0.12 亿元，是十年来第一次由主业真实驱动的盈利。</p>
+        <div class="callout good">
+          <span class="ct">质量验证</span>
+          毛利率 13.89%（2025）→ <b>28.72%</b>（2026Q3）；ROE 7.45% → <b>15.80%</b>。改善来自毛利端，而非费用压缩。
+        </div>
+      </div>
+      <figure class="fig">
+        <img class="shot" src="figures/图3-2_盈利能力指标.png" alt="盈利能力指标" loading="lazy">
+        <figcaption>图 5-2　毛利率、净利率与期间费用率（2016—2026Q3）</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 同业 ============================== -->
+<section id="peers">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">3</div>
+      <div>
+        <h2 class="sec">同业对比：涨幅不低，但并非最热</h2>
+        <div class="sec-sub">区间 2016-01-04 → 2026-10-27（前复权，首日归一）。</div>
+      </div>
+    </div>
+    <div class="tbl-wrap rv">
+      <table>
+        <thead>
+          <tr><th>公司</th><th class="num">代码</th><th class="num">区间累计涨幅</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>中际旭创</td><td class="num">300308</td><td class="num up">+8755%</td></tr>
+          <tr><td>长飞光纤</td><td class="num">601869</td><td class="num up">+719%</td></tr>
+          <tr><td>亨通光电</td><td class="num">600487</td><td class="num up">+420%</td></tr>
+          <tr><td>中天科技</td><td class="num">600522</td><td class="num up">+274%</td></tr>
+          <tr class="me"><td>永鼎股份</td><td class="num">600105</td><td class="num up">+241%</td></tr>
+          <tr><td>烽火通信</td><td class="num">600498</td><td class="num up">+12%</td></tr>
+          <tr><td>通鼎互联</td><td class="num">002491</td><td class="num down">−14.8%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tb-tip rv">中际旭创 +8755% 因 2017 年重大资产重组并表导致基数失真；横向看，永鼎的 241% 涨幅在光通信板块中处中游。</div>
+
+    <div class="split rv" style="margin-top:24px">
+      <figure class="fig">
+        <img class="shot" src="figures/图2-1_同业股价指数.png" alt="同业股价走势" loading="lazy">
+        <figcaption>图 3-1　永鼎股份与同业公司股价走势（2016-01-04＝100，对数坐标）</figcaption>
+      </figure>
+      <figure class="fig">
+        <img class="shot" src="figures/图4-1_同业雷达图.png" alt="同业财务特征雷达" loading="lazy">
+        <figcaption>图 5-9　2025 年同业公司财务特征对比（雷达图）</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 估值 ============================== -->
+<section id="value">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">4</div>
+      <div>
+        <h2 class="sec">估值：相对与绝对两条路都指向"偏贵"</h2>
+        <div class="sec-sub">相对估值看分位，绝对估值看 DCF；两套方法结论一致。</div>
+      </div>
+    </div>
+    <div class="prose rv">
+      <p><b>相对估值</b>：PE(TTM) 57.13 倍（分位 60.2%）、PB 9.55 倍（分位 92.3%）、PS 5.22 倍（分位 91.1%）。
+        注意 PE 分位在本案例会失效——2024 年利润塌陷把 PE 推到千倍、拉高样本上沿，
+        剔除净利润 &lt;1 亿元的年份后分位升至 67.0%。<b>结论应以 PB / PS 分位为主</b>。</p>
+      <p><b>绝对估值（两阶段 DCF）</b>：以基期自由现金流 6.0 亿元、净有息负债 20.7 亿元、
+        WACC 10%、永续增长率 2.5% 为共同假设，三情景如下：</p>
+    </div>
+
+    <div class="tbl-wrap rv">
+      <table>
+        <thead>
+          <tr><th>情景</th><th>2027—2030 增速路径</th><th class="num">EV（亿元）</th><th class="num">股权价值（亿元）</th><th class="num">每股（元）</th></tr>
+        </thead>
+        <tbody>
+          <tr class="me"><td>中性</td><td class="num">30% / 18% / 10% / 6%</td><td class="num">129.8</td><td class="num">109.1</td><td class="num">7.5</td></tr>
+          <tr><td>乐观</td><td class="num">50% / 35% / 20% / 10%</td><td class="num">189.8</td><td class="num">169.1</td><td class="num">11.6</td></tr>
+          <tr><td>悲观</td><td class="num">10% / 5% / 3% / 2%</td><td class="num">75.9</td><td class="num">55.2</td><td class="num">3.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tb-tip rv">三套情景的每股价值均低于现价 25.30 元；<b>反解需 2027—2030 年自由现金流连续四年复合增长 55.7%</b> 才能支撑当前市值。</div>
+
+    <div class="split rv" style="margin-top:24px">
+      <figure class="fig">
+        <img class="shot" src="figures/图5-4_DCF敏感性.png" alt="DCF 敏感性" loading="lazy">
+        <figcaption>图 6-4　自由现金流折现的企业价值敏感性（亿元）</figcaption>
+      </figure>
+      <figure class="fig">
+        <img class="shot" src="figures/图5-5_综合评分.png" alt="六维评分" loading="lazy">
+        <figcaption>图 7-1　永鼎股份投资价值六维评分</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 五维 ============================== -->
+<section id="fivedim">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">5</div>
+      <div>
+        <h2 class="sec">财务五维速览（2026 前三季 vs 2025 年报）</h2>
+        <div class="sec-sub">详见报告第五章与 Streamlit 看板"③ 财务五维"（7 个标签页 + 11 年全表）。</div>
+      </div>
+    </div>
+    <div class="tbl-wrap rv">
+      <table>
+        <thead><tr><th>维度</th><th>关键指标</th><th class="num">2025 年报</th><th class="num">2026 前三季</th><th>趋势</th></tr></thead>
+        <tbody>
+          <tr><td>成长性</td><td>营业收入（亿元）</td><td class="num">52.87</td><td class="num">54.30</td><td class="up">+49.6%</td></tr>
+          <tr><td>盈利能力</td><td>毛利率 / ROE</td><td class="num">13.89% / 7.45%</td><td class="num">28.72% / 15.80%</td><td class="up">显著改善</td></tr>
+          <tr><td>盈利质量</td><td>扣非占比</td><td class="num">97.10%（含权益法收益）</td><td class="num">99.66%</td><td class="up">主业驱动</td></tr>
+          <tr><td>偿债能力</td><td>资产负债率 / 速动比率</td><td class="num">61.89% / 0.79</td><td class="num">63.60% / 0.81</td><td class="down">杠杆上行</td></tr>
+          <tr><td>现金流</td><td>净现比</td><td class="num">1.33</td><td class="num">0.66</td><td class="down">含金量走弱</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 图表墙 ============================== -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">6</div>
+      <div>
+        <h2 class="sec">图表墙：报告 21 张成图</h2>
+        <div class="sec-sub">按报告章节分组，点击任意图片可放大查看（支持 ← → 切换、Esc 关闭）。</div>
+      </div>
+    </div>
+
+    <div class="chips rv" id="chips">
+      <button class="chip on" data-f="all">全部 21</button>
+      <button class="chip" data-f="g2">第二章 宏观（2）</button>
+      <button class="chip" data-f="g3">第三章 行业（2）</button>
+      <button class="chip" data-f="g4">第四章 公司（2）</button>
+      <button class="chip" data-f="g5">第五章 财务（10）</button>
+      <button class="chip" data-f="g6">第六章 估值（4）</button>
+      <button class="chip" data-f="g7">第七章 结论（1）</button>
+    </div>
+
+    <div class="gal rv" id="gal">
+      <div class="gitem" data-f="g2"><img src="figures/图1-1_宏观GDP_CPI_PPI.png" alt="GDP CPI PPI" loading="lazy"><p>图 2-1　2016—2025 年中国 GDP、CPI 与 PPI 同比增速</p></div>
+      <div class="gitem" data-f="g2"><img src="figures/图1-2_宏观M2_PMI.png" alt="M2 PMI" loading="lazy"><p>图 2-2　货币供应与制造业景气：M2 增速与制造业 PMI</p></div>
+      <div class="gitem" data-f="g3"><img src="figures/图2-1_同业股价指数.png" alt="同业股价指数" loading="lazy"><p>图 3-1　永鼎股份与同业公司股价走势（2016-01-04＝100）</p></div>
+      <div class="gitem" data-f="g3"><img src="figures/图2-2_同业营收增速.png" alt="同业营收增速" loading="lazy"><p>图 3-2　同业公司营业收入同比增速（2017—2025）</p></div>
+      <div class="gitem" data-f="g4"><img src="figures/图2-3_分产品收入结构.png" alt="分产品收入结构" loading="lazy"><p>图 4-1　分产品营业收入结构（2021H1—2026H1）</p></div>
+      <div class="gitem" data-f="g4"><img src="figures/图2-4_分产品毛利率.png" alt="分产品毛利率" loading="lazy"><p>图 4-2　分产品毛利率（2021H1—2026H1）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-1_营收与归母净利.png" alt="营收与归母净利" loading="lazy"><p>图 5-1　营业收入与归母净利润（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-2_盈利能力指标.png" alt="盈利能力指标" loading="lazy"><p>图 5-2　毛利率、净利率与期间费用率（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-3_杜邦分解.png" alt="杜邦分解" loading="lazy"><p>图 5-3　ROE 的杜邦三因子分解（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-4_偿债能力.png" alt="偿债能力" loading="lazy"><p>图 5-4　流动比率、速动比率与资产负债率（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-5_营运能力.png" alt="营运能力" loading="lazy"><p>图 5-5　应收账款、存货与总资产周转率（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-6_现金流量结构.png" alt="现金流量结构" loading="lazy"><p>图 5-6　经营、投资、筹资活动现金流净额（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-7_盈利质量.png" alt="盈利质量" loading="lazy"><p>图 5-7　净现比与扣非归母净利润占比（2016—2026Q3）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图3-8_2025利润拆解.png" alt="2025利润拆解" loading="lazy"><p>图 5-8　2025 年利润构成瀑布拆解（亿元）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图4-1_同业雷达图.png" alt="同业雷达图" loading="lazy"><p>图 5-9　2025 年同业公司财务特征对比（雷达图）</p></div>
+      <div class="gitem" data-f="g5"><img src="figures/图4-2_同业盈利对比.png" alt="同业盈利对比" loading="lazy"><p>图 5-10　2025 年同业公司盈利能力对比</p></div>
+      <div class="gitem" data-f="g6"><img src="figures/图5-1_PE_Band.png" alt="PE Band" loading="lazy"><p>图 6-1　PE(TTM) 历史走势与分位（2017—2026.10，对数坐标）</p></div>
+      <div class="gitem" data-f="g6"><img src="figures/图5-3_估值分位.png" alt="估值分位" loading="lazy"><p>图 6-2　当前估值所对应的历史分位</p></div>
+      <div class="gitem" data-f="g6"><img src="figures/图5-2_PB_ROE.png" alt="PB ROE" loading="lazy"><p>图 6-3　PB—ROE 匹配关系（2017—2026Q3）</p></div>
+      <div class="gitem" data-f="g6"><img src="figures/图5-4_DCF敏感性.png" alt="DCF敏感性" loading="lazy"><p>图 6-4　自由现金流折现的企业价值敏感性（亿元）</p></div>
+      <div class="gitem" data-f="g7"><img src="figures/图5-5_综合评分.png" alt="综合评分" loading="lazy"><p>图 7-1　永鼎股份投资价值六维评分</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 交付物 ============================== -->
+<section id="deliver">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">7</div>
+      <div>
+        <h2 class="sec">交付物清单</h2>
+        <div class="sec-sub">本项目全部成果文件（点击文件名可在浏览器打开 / 下载）。</div>
+      </div>
+    </div>
+    <div class="deliver rv">
+      <div class="ditem">
+        <div class="ico">📘</div>
+        <div>
+          <div class="tt"><a href="12607320270457_滕宇豪_25级大数据与财务管理03班_江苏永鼎股份（600105.SH）投资分析报告.docx">投资分析报告（Word）</a></div>
+          <div class="dd">34 页 / 17,049 字，严格按学院模板排版，含 21 图 12 表</div>
+          <div class="meta">.docx · 2.28 MB</div>
+        </div>
+      </div>
+      <div class="ditem">
+        <div class="ico">📄</div>
+        <div>
+          <div class="tt"><a href="12607320270457_滕宇豪_25级大数据与财务管理03班_江苏永鼎股份（600105.SH）投资分析报告.pdf">投资分析报告（PDF）</a></div>
+          <div class="dd">提交 / 打印用，与 Word 版同源</div>
+          <div class="meta">.pdf · 2.21 MB</div>
+        </div>
+      </div>
+      <div class="ditem">
+        <div class="ico">📊</div>
+        <div>
+          <div class="tt"><a href="streamlit_app.py">交互看板（Streamlit）</a></div>
+          <div class="dd">8 页：概览 / 行情估值 / 财务五维 / 同业 / 宏观 / DCF / 图表墙 / 数据说明</div>
+          <div class="meta">streamlit run streamlit_app.py</div>
+        </div>
+      </div>
+      <div class="ditem">
+        <div class="ico">📓</div>
+        <div>
+          <div class="tt"><a href="永鼎股份投资分析.ipynb">分析 Notebook</a></div>
+          <div class="dd">8 章 51 单元格、0 报错、21 图内嵌，可一键复现</div>
+          <div class="meta">.ipynb · 4.43 MB</div>
+        </div>
+      </div>
+      <div class="ditem">
+        <div class="ico">🧾</div>
+        <div>
+          <div class="tt"><a href="交付说明.md">交付说明</a></div>
+          <div class="dd">交付清单、复现步骤、核心结论、数据口径、排版规范</div>
+          <div class="meta">.md</div>
+        </div>
+      </div>
+      <div class="ditem">
+        <div class="ico">📦</div>
+        <div>
+          <div class="tt"><a href="requirements.txt">requirements.txt</a></div>
+          <div class="dd">Python 3.12 依赖清单（含 numpy / pyarrow 版本锁定说明）</div>
+          <div class="meta">pip install -r requirements.txt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 口径 ============================== -->
+<section id="notes">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">8</div>
+      <div>
+        <h2 class="sec">四项关键口径</h2>
+        <div class="sec-sub">报告、Notebook、看板、本页共用同一套口径，避免"数出多门"。</div>
+      </div>
+    </div>
+    <div class="notes rv">
+      <div class="note"><b>主业经营利润</b>＝毛利 − 期间费用（含研发）。2016 年及以前年报未单列研发费用，
+        故该口径自 2017 年起可比。</div>
+      <div class="note"><b>营收 CAGR</b>：2016→2025 共 9 个间隔，用 <code>(52.87/25.79)^(1/9)−1 = 8.3%</code>；
+        按十年根 (1/10) 会低估为 7.4%。</div>
+      <div class="note"><b>2026Q3 为前三季度累计</b>，非全年值，柱高不可与年度值直接比较；增长率类指标仍为同比口径。</div>
+      <div class="note"><b>PE 分位的修正</b>：剔除净利润 &lt;1 亿元的年份（2024 年利润塌陷推高样本上沿）后，
+        PE 分位由 60.2% 升至 67.0%，结论以 PB / PS 分位为主。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== 复现 ============================== -->
+<section id="repro">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="sec-num">9</div>
+      <div>
+        <h2 class="sec">复现步骤</h2>
+        <div class="sec-sub">数据已随项目附带（data/ 与 figures/），以下脚本可从头重跑一遍。</div>
+      </div>
+    </div>
+    <div class="term rv">
+      <div class="bar">
+        <i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+        <span class="nm">PowerShell / bash — 永鼎股份 600105.SH</span>
+        <button id="cp">复制</button>
+      </div>
+<pre id="code"><span class="c"># 1) 安装依赖（Python 3.12）</span>
+pip install -r requirements.txt
+
+<span class="c"># 2) 数据 → 加工 → 年报 PDF 抽取</span>
+<span class="k">cd</span> scripts
+python 01_fetch_all.py
+python 02_process.py
+python 03_extract_pdf.py
+
+<span class="c"># 3) 出图：带标题版（网页/看板用）与裸图版（Word 用）</span>
+python analysis_lib.py
+<span class="k">set</span> FIG_DIR=figures\report &amp;&amp; <span class="k">set</span> FIG_BARE=1 &amp;&amp; python analysis_lib.py
+
+<span class="c"># 4) 生成并执行 Notebook</span>
+python 05_make_notebook.py
+python 05b_run_notebook.py
+
+<span class="c"># 5) 生成 Word 报告（PDF 用 Word 另存为，或 COM 导出）</span>
+python report_content.py
+
+<span class="c"># 6) 启动交互看板</span>
+<span class="k">cd</span> ..
+streamlit run streamlit_app.py</pre>
+    </div>
+    <div class="tb-tip rv">
+      ⚠️ <b>版本锁定</b>：numpy 必须 1.26.4、pyarrow 必须 17.0.0——pyarrow ≥20 按 NumPy 2.x ABI 编译，
+      与 numpy 1.26 不兼容（看板表格会抛 <code>ImportError: pyarrow requires NumPy 2.0 or newer</code>）。
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap fcols">
+    <div>
+      <h4>永鼎股份（600105.SH）投资价值分析</h4>
+      《证券投资学》实践课 · 25 级大数据与财务管理 03 班<br>
+      滕宇豪 / 12607320270457 · 指导老师：李淑会 · 2026 年 11 月
+    </div>
+    <div>
+      <h4>数据区间</h4>
+      财务：2015—2025 年报 + 2026 年三季报<br>
+      行情：2016-01-04 — 2026-10-27（前复权）<br>
+      宏观：2016—2025 年度
+    </div>
+    <div class="dis">
+      <h4>免责声明</h4>
+      本页及配套报告为课程学习用途，所有结论基于公开数据与作者测算，
+      不构成任何投资建议。数据来自东方财富、公司年报与定期报告，
+      测算口径已在"四项关键口径"中说明。
+    </div>
+  </div>
+</footer>
+
+<div id="lb" aria-hidden="true">
+  <img alt="">
+  <div class="cap"></div>
+  <button class="x" aria-label="关闭">✕</button>
+  <button class="nav l" aria-label="上一张">‹</button>
+  <button class="nav r" aria-label="下一张">›</button>
+  <div class="idx"></div>
+</div>
+
+<button id="top" aria-label="回到顶部">↑</button>
+
+<script>
+(function () {
+  "use strict";
+  var html = document.documentElement;
+  html.classList.add("js");
+
+  /* ---------------- 主题：跟随系统 + 手动切换 + 记忆 ---------------- */
+  var KEY = "yd_theme";
+  function setTheme(t) {
+    html.setAttribute("data-theme", t);
+    var b = document.getElementById("tt");
+    if (b) b.textContent = t === "dark" ? "☀️" : "🌙";
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  var mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+  setTheme(saved || (mq && mq.matches ? "dark" : "light"));
+  document.getElementById("tt").addEventListener("click", function () {
+    setTheme(html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ---------------- 滚动进度条 / 返回顶部 ---------------- */
+  var prog = document.getElementById("prog"), topBtn = document.getElementById("top");
+  function onScroll() {
+    var h = document.documentElement, st = h.scrollTop || document.body.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    prog.style.width = (max > 0 ? (st / max) * 100 : 0) + "%";
+    topBtn.classList.toggle("on", st > 500);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  topBtn.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+  /* ---------------- 导航高亮（scrollspy） ---------------- */
+  var navA = [].slice.call(document.querySelectorAll("#nav a"));
+  var secs = navA.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      navA.forEach(function (a) { a.classList.remove("on"); });
+      var i = secs.indexOf(e.target);
+      if (i >= 0) navA[i].classList.add("on");
+    });
+  }, { rootMargin: "-70px 0px -62% 0px", threshold: 0 });
+  secs.forEach(function (s) { if (s) io.observe(s); });
+
+  /* ---------------- 进场动画 ---------------- */
+  var rvs = [].slice.call(document.querySelectorAll(".rv"));
+  if ("IntersectionObserver" in window) {
+    var io2 = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io2.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: .06 });
+    rvs.forEach(function (el, i) {
+      el.style.transitionDelay = (Math.min(i % 6, 5) * 45) + "ms";
+      io2.observe(el);
+    });
+  } else {
+    rvs.forEach(function (el) { el.classList.add("in"); });
+  }
+
+  /* ---------------- 图表墙筛选 ---------------- */
+  var chips = [].slice.call(document.querySelectorAll("#chips .chip"));
+  var items = [].slice.call(document.querySelectorAll("#gal .gitem"));
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      chips.forEach(function (x) { x.classList.remove("on"); });
+      c.classList.add("on");
+      var f = c.getAttribute("data-f");
+      items.forEach(function (it) {
+        it.classList.toggle("hide", f !== "all" && it.getAttribute("data-f") !== f);
+      });
+    });
+  });
+
+  /* ---------------- 灯箱 ---------------- */
+  var LB = document.getElementById("lb");
+  var lbImg = LB.querySelector("img"), lbCap = LB.querySelector(".cap"), lbIdx = LB.querySelector(".idx");
+  var shots = [];   // 收集顺序：正文图在前，图表墙在后
+  [].slice.call(document.querySelectorAll("figure.fig img.shot, #gal .gitem img")).forEach(function (im, i) {
+    var p = im.parentNode.querySelector("figcaption, p");
+    var idx = i;   // 必须在绑定时固化：若写成 open(shots.length-1)，点击时数组已填满，任何图都会跳到最后一张
+    shots.push({ src: im.getAttribute("src"), cap: p ? p.textContent.trim() : "" });
+    im.addEventListener("click", function () { open(idx); });
+  });
+  var cur = 0;
+  function open(i) {
+    if (i < 0 || i >= shots.length) return;
+    cur = i;
+    lbImg.setAttribute("src", shots[i].src);
+    lbCap.textContent = shots[i].cap;
+    lbIdx.textContent = (i + 1) + " / " + shots.length;
+    LB.classList.add("on");
+    LB.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+  function close() {
+    LB.classList.remove("on");
+    LB.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+  LB.querySelector(".x").addEventListener("click", close);
+  LB.querySelector(".nav.l").addEventListener("click", function (e) { e.stopPropagation(); open(cur - 1); });
+  LB.querySelector(".nav.r").addEventListener("click", function (e) { e.stopPropagation(); open(cur + 1); });
+  LB.addEventListener("click", function (e) { if (e.target === LB) close(); });
+  document.addEventListener("keydown", function (e) {
+    if (!LB.classList.contains("on")) return;
+    if (e.key === "Escape") close();
+    else if (e.key === "ArrowLeft") open(cur - 1);
+    else if (e.key === "ArrowRight") open(cur + 1);
+  });
+
+  /* ---------------- 代码块复制 ---------------- */
+  var cp = document.getElementById("cp");
+  cp.addEventListener("click", function () {
+    var txt = document.getElementById("code").innerText;
+    var done = function () { cp.textContent = "已复制"; setTimeout(function () { cp.textContent = "复制"; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function () { cp.textContent = "复制失败"; });
+    } else { done(); }
+  });
+})();
+</script>
+</body>
+</html>

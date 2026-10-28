@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------------------
+# 永鼎股份（600105.SH）投资价值分析 — Git 忽略规则
+#
+# 原则：只忽略"噪声"与"可一键重生成的大体积产物"；
+#       数据底稿（data/processed、data/raw 的 csv/json）、21 张成图与报告正文
+#       一律纳入版本控制，保证仓库克隆下来即可离线复现全部结论。
+# ---------------------------------------------------------------------------
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.installed.cfg
+
+# ---------- 虚拟环境 ----------
+.venv/
+venv/
+env/
+ENV/
+
+# ---------- 环境变量 / 密钥 ----------
+.env
+.env.local
+.env.*.local
+
+# ---------- 测试与静态检查缓存 ----------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# ---------- Streamlit ----------
+.streamlit/secrets.toml
+
+# ---------- Office / WPS 临时与锁文件 ----------
+~$*.docx
+~$*.doc
+~$*.xlsx
+~$*.xls
+~$*.pptx
+*.tmp
+*.bak
+
+# ---------- 操作系统 ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ---------- 早期草稿（署名处仍为占位符，已被正式报告取代） ----------
+25级大数据与财务管理+永鼎股份投资分析报告.docx
+
+# ---------- 大体积且可重生成的抓取产物 ----------
+# 13 份年报 / 季报 PDF 合计约 50 MB，纯二进制、无 diff 价值，
+# 且已由 scripts/03_extract_pdf.py 抽取为文本入库（data/raw/reports/*.txt），
+# 需要时可用 scripts/01_fetch_all.py + 01b/01c 一键重爬。
+# 若确需把 PDF 底稿一并入库，把下一行注释掉即可。
+data/raw/reports/*.pdf

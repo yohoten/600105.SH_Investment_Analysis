@@ -1,0 +1,27 @@
+# ============================================================
+# 永鼎股份（600105.SH）投资价值分析 —— 依赖清单
+# 目标环境：Python 3.12（Windows）
+# 安装：pip install -r requirements.txt
+# ============================================================
+
+# ---------- 报告 / Notebook 流水线 ----------
+numpy==1.26.4          # 注意：勿升级到 2.x，matplotlib 3.9.3 与 pyarrow 17.x 依赖 1.x
+pandas==2.2.2
+matplotlib==3.9.3
+python-docx==1.2.0     # Word 报告排版（06_build_report.py / report_content.py）
+requests==2.34.2       # 数据抓取（01_fetch_all.py）
+PyMuPDF==1.28.2        # 年报 PDF 文本抽取（03_extract_pdf.py）
+nbformat==5.11.1       # Notebook 生成（05_make_notebook.py）
+nbclient==0.11.0       # Notebook 执行（05b_run_notebook.py）
+ipykernel==7.4.0       # nbclient 的 Jupyter 内核
+
+# ---------- 交互看板（streamlit_app.py） ----------
+streamlit==1.66.1
+plotly==7.1.0
+pyarrow==17.0.0        # ⚠️ 必须 ≤17：≥20 按 NumPy 2.x ABI 编译，会抛
+                       #    "pyarrow requires NumPy 2.0 or newer"
+
+# ---------- 说明 ----------
+# 1) numpy 务必锁 1.26.4：报告绘图链（matplotlib 3.9.3）与看板（pyarrow 17）都按 1.x 编译。
+# 2) pyarrow 务必锁 17.0.0：新版与 numpy 1.26 不兼容（st.dataframe 会 ImportError）。
+# 3) 纯复现看板时，也可只装 streamlit / plotly / pandas / numpy / pyarrow 五行。
